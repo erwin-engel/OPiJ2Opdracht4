@@ -28,6 +28,8 @@ public class PlaatsPanel extends JPanel implements Observer {
 
   /**
    * De constructor zet de afmeting van het plaatspanel en bepaalt de kleur
+   * @param plaats
+   * @param muisLuisteraar
    */
   public PlaatsPanel(Plaats plaats, MouseListener muisLuisteraar) {
     this.plaats = plaats;

@@ -16,14 +16,13 @@ public class Theater {
   
  
   /**
-   * Creeert een theater.
-   * @param naam theaternaam
+   * 
+   * @param naam
+   * @throws TheaterException
    */
-  public Theater(String naam) {
+  public Theater(String naam) throws TheaterException {
     this.naam = naam;
-    Klantbeheer.init();
-    Voorstellingbeheer.init();
-  }
+	}
 
   /**
    * Geeft de naam van het theater.
@@ -36,16 +35,18 @@ public class Theater {
   /**
    * Geeft een lijst van data waarop voorstellingen zijn gepland.
    * @return lijst met data.
+   * @throws TheaterException 
    */
-  public ArrayList<GregorianCalendar> geefVoorstellingsData() {
+  public ArrayList<GregorianCalendar> geefVoorstellingsData() throws TheaterException {
     return Voorstellingbeheer.geefVoorstellingsData();
   }
   
   /**
    * Wisselt de huidige voorstelling naar voorstelling met gegeven datum.
    * @param datum datum van gevraagde voorstelling
+   * @throws TheaterException 
    */
-  public void wisselVoorstelling(GregorianCalendar datum) {
+  public void wisselVoorstelling(GregorianCalendar datum) throws TheaterException {
     huidigeVoorstelling = Voorstellingbeheer.geefVoorstelling(datum);
   }
 
@@ -62,14 +63,15 @@ public class Theater {
    * Wanneer een klant nog niet bestaat, dan wordt deze eerst gecreeerd.
    * @param naam naam van klant
    * @param telefoon telefoonnummer van klant
+   * @throws TheaterException 
    */
-  public void plaatsKlant(String naam, String telefoon) {
+  public void plaatsKlant(String naam, String telefoon) throws TheaterException {
     Klant klant = Klantbeheer.geefKlant(naam, telefoon);
     huidigeVoorstelling.plaatsKlant(klant);
   }
 
   /**
-   * Verandert de reserveringsstatus (VRIJ<=>GERESERVEERD) van een plaats
+   * Verandert de reserveringsstatus (VRIJ - GERESERVEERD) van een plaats
    * in de huidige voorstelling.
    * @param rijnummer rijnummer van plaats
    * @param stoelnummer stoelnummer van plaats

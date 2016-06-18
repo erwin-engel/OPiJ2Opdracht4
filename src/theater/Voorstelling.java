@@ -1,6 +1,9 @@
 package theater;
 
+import java.text.SimpleDateFormat;
 import java.util.GregorianCalendar;
+import theaterdata.TheaterException;
+import theaterdata.Voorstellingbeheer;
 
 /**
  * Representeert een voorstelling.
@@ -118,11 +121,14 @@ public class Voorstelling {
   /**
    * Plaatst de klant op alle gereserveerde plaatsen.
    * @param klant de klant
+   * @throws TheaterException 
    */
-  public void plaatsKlant(Klant klant) {
+  public void plaatsKlant(Klant klant) throws TheaterException {
     for (int i = 1; i < plaatsen.length; i++) {
       for (int j = 1; j < plaatsen[i].length; j++) {
-        plaatsen[i][j].plaatsKlant(klant);
+        if (plaatsen[i][j].plaatsKlant(klant)){
+        	Voorstellingbeheer.bezettingVastleggen (this.datum, i, j, klant.getKlantnummer());
+        }
       }
     }
   }
@@ -154,6 +160,12 @@ public class Voorstelling {
   private boolean inZaal(int rijnummer, int stoelnummer) {
     return rijnummer >= 1 && rijnummer <= Theater.AANTALRIJEN
          && stoelnummer >= 1 && stoelnummer <= Theater.AANTALPERRIJ;
+  }
+  
+  public String toString(){
+  	SimpleDateFormat jmdFormaat = new SimpleDateFormat("yyyy-MM-dd");
+  	String jmdDatum = jmdFormaat.format(datum.getTime());
+  	return ("Voorstelling naam :" + naam + ", Datum: " + jmdDatum + ", Aantal Plaatsen: " + plaatsen.length);
   }
 
 }

@@ -1,6 +1,8 @@
 package theater;
 
+import java.util.GregorianCalendar;
 import java.util.Observable;
+import theaterdata.Voorstellingbeheer;
 
 /**
  * Representeert een plaats voor een bepaalde voorstelling. De klasse is

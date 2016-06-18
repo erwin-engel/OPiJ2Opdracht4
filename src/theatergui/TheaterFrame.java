@@ -18,6 +18,10 @@ import javax.swing.JTextField;
 
 import theater.Theater;
 import theater.Voorstelling;
+import theaterdata.Connectiebeheer;
+import theaterdata.TheaterException;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 
 /**
  * De klasse TheaterFrame is de grafische interface van het theater. Dit frame
@@ -67,18 +71,38 @@ public class TheaterFrame extends JFrame {
 
   /**
    * This is the default constructor
+   * @throws TheaterException 
    */
-  public TheaterFrame() {
+  public TheaterFrame() throws TheaterException {
     super();
     initialize();
     mijnInit();
+
+    addWindowListener(new WindowAdapter() {
+    	@Override
+    	public void windowClosing(WindowEvent e) {
+    		try {
+					Connectiebeheer.closeDB();
+				}
+				catch (TheaterException ex) {
+					System.out.println(ex.getMessage());
+				}
+    	}
+    });
   }
 
   /**
    * Vult de voorstellingsKeuze en selecteert de eerste voorstelling.
+   * @throws TheaterException 
    */
-  private void mijnInit() {
-    theater = new Theater("Theater de Schouwburg");
+  private void mijnInit() throws TheaterException {
+    Connectiebeheer.openDB();
+  	try {
+			theater = new Theater("Theater de Schouwburg");
+		}
+		catch (TheaterException e) {
+			System.out.println(e.getMessage());
+		}
     setTitle(theater.getNaam());
     ArrayList<GregorianCalendar> data = theater.geefVoorstellingsData();
     for (GregorianCalendar datum : data) {
@@ -91,15 +115,16 @@ public class TheaterFrame extends JFrame {
    * Event handler voor het selecteren van een voorstelling. Er hoeft alleen
    * iets te gebeuren met de event die de voorstelling selecteert, niet met de
    * event die de voorstelling deselecteert.
+   * @throws TheaterException 
    */
-  private void voorstellingsKeuzeItemStateChanged(ItemEvent e) {
+  private void voorstellingsKeuzeItemStateChanged(ItemEvent e) throws TheaterException {
     if (e.getStateChange() == ItemEvent.SELECTED) {
       String sdatum = (String) voorstellingsKeuze.getSelectedItem();
       GregorianCalendar datum = new GregorianCalendar();
       try {
         datum.setTime(fmt.parse(sdatum));
       } catch (ParseException exc) {
-        // Exception afhandelen
+      	foutLabel.setText(exc.getMessage());
       }
       theater.wisselVoorstelling(datum);
 
@@ -120,8 +145,9 @@ public class TheaterFrame extends JFrame {
    * en aan het theater wordt gevraagd om de gereserveerde plaatsen aan een
    * klant met die gegevens toe te wijzen. De invoervelden voor naam en
    * telefoonnummer worden leeg gemaakt.
+   * @throws TheaterException 
    */
-  private void plaatsKnopAction() {
+  private void plaatsKnopAction() throws TheaterException {
     String naam = naamVeld.getText();
     String telefoon = telefoonVeld.getText();
     theater.plaatsKlant(naam, telefoon);
@@ -151,7 +177,7 @@ public class TheaterFrame extends JFrame {
   private JPanel getJContentPane() {
     if (jContentPane == null) {
       foutLabel = new JLabel();
-      foutLabel.setBounds(new Rectangle(2, 498, 530, 27));
+      foutLabel.setBounds(new Rectangle(14, 494, 509, 27));
       foutLabel.setForeground(Color.red);
       foutLabel.setText("");
       voorstellingsLabel = new JLabel();
@@ -190,7 +216,13 @@ public class TheaterFrame extends JFrame {
       voorstellingsKeuze.setBounds(new Rectangle(14, 9, 155, 22));
       voorstellingsKeuze.addItemListener(new java.awt.event.ItemListener() {
         public void itemStateChanged(java.awt.event.ItemEvent e) {
-          voorstellingsKeuzeItemStateChanged(e);
+          try {
+						voorstellingsKeuzeItemStateChanged(e);
+					}
+					catch (TheaterException e1) {
+						// TODO Auto-generated catch block
+						e1.printStackTrace();
+					}
         }
       });
     }
@@ -235,14 +267,20 @@ public class TheaterFrame extends JFrame {
       plaatsKnop.setText("Plaats");
       plaatsKnop.addActionListener(new java.awt.event.ActionListener() {
         public void actionPerformed(java.awt.event.ActionEvent e) {
-          plaatsKnopAction();
+          try {
+						plaatsKnopAction();
+					}
+					catch (TheaterException e1) {
+						foutLabel.setText(e1.getMessage());
+						e1.printStackTrace();
+					}
         }
       });
     }
     return plaatsKnop;
   }
-
-  public static void main(String[] args) {
+  
+  public static void main(String[] args) throws TheaterException {
     TheaterFrame gui = new TheaterFrame();
     gui.setDefaultCloseOperation(EXIT_ON_CLOSE);
     gui.setVisible(true);
