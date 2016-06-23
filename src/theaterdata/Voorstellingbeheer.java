@@ -25,11 +25,11 @@ public class Voorstellingbeheer extends TheaterDatabeheer {
 	private static PreparedStatement selectKlant = null;
 	private static ResultSet resultSetVoorstellingen = null;
 	private static ResultSet resultSetVoorstelling = null;
-	private static ResultSet resultSetBezettingen = null;
-	private static ResultSet resultSetKlant = null;
-	private static Voorstelling voorstelling = null;
-	private static Bezetting bezetting = null;
-	private static Klant klant = null;
+//	private static ResultSet resultSetBezettingen = null;
+//	private static ResultSet resultSetKlant = null;
+//	private static Voorstelling voorstelling = null;
+//	private static Bezetting bezetting = null;
+//	private static Klant klant = null;
 
 	public Voorstellingbeheer(){
 		super();
@@ -85,17 +85,22 @@ public class Voorstellingbeheer extends TheaterDatabeheer {
 	 * @throws TheaterException
 	 */
 	public static Voorstelling geefVoorstelling(GregorianCalendar datum) throws TheaterException {
-		voorstelling = null;
+		Voorstelling voorstelling = null;
+		ResultSet rsBezetting = null;
+		ResultSet rsKlant = null;
+		ResultSet rsVoorstelling = null;
 		try {
-			selectVoorstelling(datum);
-			maakVoorstelling();
-			selectBezettingen(datum);
-			while(resultSetBezettingen.next()){
-				maakBezetting();
-				voorstelling.reserveer(bezetting.getRijnummer(), bezetting.getStoelnummer());
-				selectKlant(bezetting.getKlantnummer());
-				maakKlant();
-				voorstelling.plaatsKlant(bezetting.getRijnummer(), bezetting.getStoelnummer(), klant );
+			rsVoorstelling = selectVoorstelling(datum);
+			rsVoorstelling.first();
+			System.out.println("voorna");
+			voorstelling = new Voorstelling(rsVoorstelling.getString(2),naarGCDatum(rsVoorstelling.getDate(1)));
+			rsBezetting = selectBezettingen(datum);
+			while(rsBezetting.next()){
+				voorstelling.reserveer(rsBezetting.getInt(3), rsBezetting.getInt(4));
+				rsKlant = selectKlant(rsBezetting.getInt(5)); 
+				rsKlant.first();
+				Klant k = new Klant(rsKlant.getInt(1), rsKlant.getString(2), rsKlant.getString(3));
+				voorstelling.plaatsKlant(rsBezetting.getInt(3), rsBezetting.getInt(4), k );
 			}
 		}
 		catch (SQLException e) {
@@ -112,7 +117,7 @@ public class Voorstellingbeheer extends TheaterDatabeheer {
 	 * @throws TheaterException
 	 */
 	public static void bezettingVastleggen(GregorianCalendar gcDatum, int rijnummer, int stoelnummer, int klantnummer ) throws TheaterException{
-		bezetting = null;
+//		bezetting = null;
 		try {
 			insertBezetting.setString(1, "" + naarSQLDatum(gcDatum).toString());
 			// onderstaande regel kan gebruikt worden om foutmelding bij foutieve insert te testen
@@ -123,7 +128,7 @@ public class Voorstellingbeheer extends TheaterDatabeheer {
 			insertBezetting.setString(4, "" + klantnummer);
 			insertBezetting.executeUpdate();
 
-			bezetting = new Bezetting(gcDatum, rijnummer, stoelnummer, klantnummer);
+//			bezetting = new Bezetting(gcDatum, rijnummer, stoelnummer, klantnummer);
 		}
 		catch (SQLException e) {
 			throwExceptie("het plaatsen van de klant met datum: " + geefJmdDatum(gcDatum) + " is mislukt ");
@@ -134,42 +139,48 @@ public class Voorstellingbeheer extends TheaterDatabeheer {
 	 * @param gcDatum (formaat is Gregorian Calendar)
 	 * @throws TheaterException
 	 */
-	private static void selectVoorstelling (GregorianCalendar gcDatum) throws TheaterException{
+	private static ResultSet selectVoorstelling (GregorianCalendar gcDatum) throws TheaterException{
+		ResultSet rs = null;
 		try {
 			selectVoorstelling.setString(1, naarSQLDatum(gcDatum).toString());
-			resultSetVoorstelling = selectVoorstelling.executeQuery();
+			rs = selectVoorstelling.executeQuery();
 		}
 		catch (SQLException e) {
 			throwExceptie("het selecteren van voorstelling met datum: " + geefJmdDatum(gcDatum) + " is mislukt ");
 		}
+		return rs;
 	}
 	/**
 	 * Selecteert bezettingen voor een gegeven datum.
 	 * @param gcDatum (formaat is Gregorian Calendar)
 	 * @throws TheaterException
 	 */
-	private static void selectBezettingen (GregorianCalendar gcDatum) throws TheaterException{
+	private static ResultSet selectBezettingen (GregorianCalendar gcDatum) throws TheaterException{
+		ResultSet rs = null;
 		try {
 			selectBezettingen.setString(1, naarSQLDatum(gcDatum).toString());
-			resultSetBezettingen = selectBezettingen.executeQuery();
+			rs = selectBezettingen.executeQuery();
 		}
 		catch (SQLException e) {
 			throwExceptie("het selecteren van bezettingen met datum: " + geefJmdDatum(gcDatum) + " is mislukt ");
 		}
+		return rs;
 	}
 	/**
 	 * Selecteert een klant voor een gegeven klantnummer.
 	 * @param klantNummer
 	 * @throws TheaterException
 	 */
-	private static void selectKlant (int klantNummer) throws TheaterException{
+	private static ResultSet selectKlant (int klantNummer) throws TheaterException{
+		ResultSet rs = null;
 		try {
 			selectKlant.setString(1, "" + klantNummer);
-			resultSetKlant = selectKlant.executeQuery();
+			rs = selectKlant.executeQuery();
 		}
 		catch (SQLException e) {
 			throwExceptie("het selecteren van klant met klantnummer: " + klantNummer + " is mislukt.");
 		}
+		return rs;
 	}
 	/**
 	 * Maakt van een geselecteerde voorstelling een instantie van Voorstelling
@@ -180,7 +191,7 @@ public class Voorstellingbeheer extends TheaterDatabeheer {
 			resultSetVoorstelling.first();
 			Date sqlDatum = resultSetVoorstelling.getDate(1);
 			String voorstellingnaam = resultSetVoorstelling.getString(2);
-			voorstelling = new Voorstelling(voorstellingnaam, naarGCDatum(sqlDatum));
+			Voorstelling voorstelling = new Voorstelling(voorstellingnaam, naarGCDatum(sqlDatum));
 		}
 		catch (SQLException e) {
 			throwExceptie("het opvragen van de voorstellings gegevens is mislukt");
@@ -190,14 +201,14 @@ public class Voorstellingbeheer extends TheaterDatabeheer {
 	 * Maakt van een geselecteerde bezetting een instantie van Bezetting.
 	 * @throws TheaterException
 	 */
-	private static void maakBezetting()throws TheaterException{
-		bezetting = null;
+	private static void maakBezetting(ResultSet rs)throws TheaterException{
+//		bezetting = null;
 		try {
-			GregorianCalendar gcDatum = naarGCDatum(resultSetBezettingen.getDate(2));
-			int rijnummer = resultSetBezettingen.getInt(3);
-			int stoelnummer = resultSetBezettingen.getInt(4);
-			int klantnummer = resultSetBezettingen.getInt(5);
-			bezetting = new Bezetting(gcDatum, rijnummer, stoelnummer, klantnummer);
+			GregorianCalendar gcDatum = naarGCDatum(rs.getDate(2));
+			int rijnummer = rs.getInt(3);
+			int stoelnummer = rs.getInt(4);
+			int klantnummer = rs.getInt(5);
+	//		bezetting = new Bezetting(gcDatum, rijnummer, stoelnummer, klantnummer);
 		}
 		catch (SQLException e) {
 			throwExceptie("het opvragen van de bezettingen mislukt");
@@ -207,14 +218,12 @@ public class Voorstellingbeheer extends TheaterDatabeheer {
 	 * Maakt van een geselecteerde klant een instantie van Klant.
 	 * @throws TheaterException
 	 */
-	private static void maakKlant()throws TheaterException{
-		klant = null;
+	private static void maakKlant(ResultSet rs)throws TheaterException{
 		try {
-			resultSetKlant.first();
-			int klantnummer = resultSetKlant.getInt(1);
-			String klantnaam = resultSetKlant.getString(2);
-			String klantTelno = resultSetKlant.getString(3);
-			klant = new Klant(klantnummer, klantnaam, klantTelno);
+			rs.first();
+			int klantnummer = rs.getInt(1);
+			String klantnaam = rs.getString(2);
+			String klantTelno = rs.getString(3);
 		}
 		catch (SQLException e) {
 			throwExceptie("het maken van een nieuwe klant is mislukt");
