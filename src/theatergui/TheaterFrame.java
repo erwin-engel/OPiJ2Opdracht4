@@ -13,6 +13,7 @@ import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
 
@@ -96,21 +97,20 @@ public class TheaterFrame extends JFrame {
    * @throws TheaterException 
    */
   private void mijnInit() throws TheaterException {
-    Connectiebeheer.openDB();
-  	try {
-			theater = new Theater("Theater de Schouwburg");
-		}
-		catch (TheaterException e) {
-			System.out.println(e.getMessage());
-		}
-    setTitle(theater.getNaam());
-    ArrayList<GregorianCalendar> data = theater.geefVoorstellingsData();
-    for (GregorianCalendar datum : data) {
-      voorstellingsKeuze.addItem(fmt.format(datum.getTime()));
-    }
-    voorstellingsKeuze.setSelectedIndex(0);
-  }
 
+		theater = new Theater("Theater de Schouwburg");
+
+  	if (theater.initialiseerTheater()){
+	    setTitle(theater.getNaam());
+	    ArrayList<GregorianCalendar> data = theater.geefVoorstellingsData();
+	    for (GregorianCalendar datum : data) {
+	      voorstellingsKeuze.addItem(fmt.format(datum.getTime()));
+	    }
+	    voorstellingsKeuze.setSelectedIndex(0);
+  	} else {
+  		JOptionPane.showMessageDialog(this, "fout in starten theater applicatie",  "", JOptionPane.ERROR_MESSAGE);
+  	}
+  }
   /**
    * Event handler voor het selecteren van een voorstelling. Er hoeft alleen
    * iets te gebeuren met de event die de voorstelling selecteert, niet met de
@@ -127,8 +127,6 @@ public class TheaterFrame extends JFrame {
       	foutLabel.setText(exc.getMessage());
       }
       theater.wisselVoorstelling(datum);
-
-      // Maak een nieuwe interface voor deze voorstelling
       Voorstelling voorstelling = theater.getHuidigeVoorstelling();
       voorstellingsLabel.setText(voorstelling.getNaam());
       if (voorstellingsPanel != null) {
@@ -139,7 +137,6 @@ public class TheaterFrame extends JFrame {
       getContentPane().add(voorstellingsPanel);
     }
   }
-
   /**
    * Event handler voor de knop Plaats. Naam en telefoonnummer worden ingelezen,
    * en aan het theater wordt gevraagd om de gereserveerde plaatsen aan een

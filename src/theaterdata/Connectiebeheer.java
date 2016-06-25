@@ -34,8 +34,8 @@ public class Connectiebeheer extends TheaterDatabeheer {
 		catch (SQLException e) {
 			throw new TheaterException("fout bij maken connectie" + DBConst.URL);
 		}
-    Klantbeheer.init();
-    Voorstellingbeheer.init();
+//    Klantbeheer.init();
+//    Voorstellingbeheer.init();
     System.out.println("initialisatie beheer gereed");
   }
 

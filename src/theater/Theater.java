@@ -92,4 +92,10 @@ public class Theater {
     Plaats plaats = huidigeVoorstelling.getPlaats(rijnummer, stoelnummer);
     return plaats.toString();
   }
+  public boolean initialiseerTheater() throws TheaterException{
+  	Connectiebeheer.openDB();
+    Klantbeheer.init();
+    Voorstellingbeheer.init();
+  	return true;
+  }
 }

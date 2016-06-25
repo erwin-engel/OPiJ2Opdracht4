@@ -25,11 +25,6 @@ public class Voorstellingbeheer extends TheaterDatabeheer {
 	private static PreparedStatement selectKlant = null;
 	private static ResultSet resultSetVoorstellingen = null;
 	private static ResultSet resultSetVoorstelling = null;
-//	private static ResultSet resultSetBezettingen = null;
-//	private static ResultSet resultSetKlant = null;
-//	private static Voorstelling voorstelling = null;
-//	private static Bezetting bezetting = null;
-//	private static Klant klant = null;
 
 	public Voorstellingbeheer(){
 		super();
@@ -127,8 +122,6 @@ public class Voorstellingbeheer extends TheaterDatabeheer {
 
 			insertBezetting.setString(4, "" + klantnummer);
 			insertBezetting.executeUpdate();
-
-//			bezetting = new Bezetting(gcDatum, rijnummer, stoelnummer, klantnummer);
 		}
 		catch (SQLException e) {
 			throwExceptie("het plaatsen van de klant met datum: " + geefJmdDatum(gcDatum) + " is mislukt ");
