@@ -4,7 +4,6 @@ import java.io.PrintWriter;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
-import theatergui.TheaterFrame;
 /**
  * Beheert de connectie met de database.
  * Bevat methoden voor openen en sluiten van connectie met database,
@@ -15,7 +14,7 @@ public class Connectiebeheer extends TheaterDatabeheer {
 	private static Connection con = null;
 
 	/**
-	 * Maakt een connectie met de database en initialiseert Klantbeheer en VoostellingBeheer.
+	 * Maakt een connectie met de database.
 	 * @throws TheaterException
 	 */
   public static void openDB() throws TheaterException {
@@ -28,15 +27,11 @@ public class Connectiebeheer extends TheaterDatabeheer {
 		System.out.println("db open");
   	}
 		catch (ClassNotFoundException e) {
-			throw new TheaterException("Fout bij openen DB: " + DBConst.DRIVERNAAM + " , "+ e.toString());
-			
+			throwExceptie(DBConst.DBOPENERROR + DBConst.DRIVERNAAM);
 		}
 		catch (SQLException e) {
-			throw new TheaterException("fout bij maken connectie" + DBConst.URL);
+			throwExceptie(DBConst.DBCONNECTERROR + DBConst.URL);
 		}
-//    Klantbeheer.init();
-//    Voorstellingbeheer.init();
-    System.out.println("initialisatie beheer gereed");
   }
 
   /**
@@ -50,12 +45,12 @@ public class Connectiebeheer extends TheaterDatabeheer {
   			con.close();
   		}
   		catch (SQLException e) {
-  			throw new TheaterException("fout bij maken connectie" + DBConst.URL);  			
+  			throwExceptie(DBConst.DBCLOSEERROR + DBConst.URL);  			
   		}
   	}
   }
   /**
-   * geeft connectie
+   * levert de connectie met de database 
    * @return con: database connectie
    */
 	public static Connection getCon() {
@@ -73,7 +68,7 @@ public class Connectiebeheer extends TheaterDatabeheer {
 			Connectiebeheer.closeDB();
 		}
 		catch (TheaterException e) {
-			throwExceptie("fout bij testen connectie");
+			throwExceptie(DBConst.DBCONNECTERROR);
 		}
   }  
 }

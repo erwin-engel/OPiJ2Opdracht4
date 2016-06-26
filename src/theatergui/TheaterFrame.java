@@ -96,20 +96,20 @@ public class TheaterFrame extends JFrame {
    * Vult de voorstellingsKeuze en selecteert de eerste voorstelling.
    * @throws TheaterException 
    */
-  private void mijnInit() throws TheaterException {
-
-		theater = new Theater("Theater de Schouwburg");
-
-  	if (theater.initialiseerTheater()){
-	    setTitle(theater.getNaam());
-	    ArrayList<GregorianCalendar> data = theater.geefVoorstellingsData();
-	    for (GregorianCalendar datum : data) {
-	      voorstellingsKeuze.addItem(fmt.format(datum.getTime()));
-	    }
-	    voorstellingsKeuze.setSelectedIndex(0);
-  	} else {
-  		JOptionPane.showMessageDialog(this, "fout in starten theater applicatie",  "", JOptionPane.ERROR_MESSAGE);
-  	}
+  private void mijnInit() {
+		try {
+			theater = new Theater("Theater de Schouwburg");
+			theater.initialiseerTheater();
+		  setTitle(theater.getNaam());
+		  ArrayList<GregorianCalendar> data = theater.geefVoorstellingsData();
+		  for (GregorianCalendar datum : data) {
+		    voorstellingsKeuze.addItem(fmt.format(datum.getTime()));
+		  }
+		  voorstellingsKeuze.setSelectedIndex(0);
+		}
+		catch (TheaterException e) {
+			JOptionPane.showMessageDialog(this, e.getMessage(), "", JOptionPane.ERROR_MESSAGE);
+		}
   }
   /**
    * Event handler voor het selecteren van een voorstelling. Er hoeft alleen
@@ -148,7 +148,6 @@ public class TheaterFrame extends JFrame {
     String naam = naamVeld.getText();
     String telefoon = telefoonVeld.getText();
     theater.plaatsKlant(naam, telefoon);
-
     // maak de velden leeg
     naamVeld.setText("");
     telefoonVeld.setText("");
@@ -215,10 +214,10 @@ public class TheaterFrame extends JFrame {
         public void itemStateChanged(java.awt.event.ItemEvent e) {
           try {
 						voorstellingsKeuzeItemStateChanged(e);
+						foutLabel.setText("");
 					}
 					catch (TheaterException e1) {
-						// TODO Auto-generated catch block
-						e1.printStackTrace();
+						foutLabel.setText(e1.getMessage());
 					}
         }
       });
@@ -266,10 +265,10 @@ public class TheaterFrame extends JFrame {
         public void actionPerformed(java.awt.event.ActionEvent e) {
           try {
 						plaatsKnopAction();
+						foutLabel.setText("");
 					}
 					catch (TheaterException e1) {
 						foutLabel.setText(e1.getMessage());
-						e1.printStackTrace();
 					}
         }
       });

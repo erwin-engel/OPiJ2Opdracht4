@@ -66,7 +66,11 @@ public class Theater {
    * @throws TheaterException 
    */
   public void plaatsKlant(String naam, String telefoon) throws TheaterException {
-    Klant klant = Klantbeheer.geefKlant(naam, telefoon);
+  	String naamopgemaakt = naam.trim();
+  	if (naamopgemaakt.length() < 1 || telefoon.length() < 1) {
+  		throw new TheaterException("vul juiste naam en telefoonnummer in");
+  	}
+    Klant klant = Klantbeheer.geefKlant(naamopgemaakt, telefoon);
     huidigeVoorstelling.plaatsKlant(klant);
   }
 
@@ -92,10 +96,9 @@ public class Theater {
     Plaats plaats = huidigeVoorstelling.getPlaats(rijnummer, stoelnummer);
     return plaats.toString();
   }
-  public boolean initialiseerTheater() throws TheaterException{
+  public void initialiseerTheater() throws TheaterException{
   	Connectiebeheer.openDB();
     Klantbeheer.init();
     Voorstellingbeheer.init();
-  	return true;
   }
 }
